@@ -53,11 +53,26 @@ function init() {
 
                 updateAnEmployeeRole();
 
+            } else{
+
+                createConnection.end();
+
             }
 
 
         })
             
+}
+
+function viewAllDepartments(){
+    
+    createConnection.query("SELECT * FROM department",function(err,res){
+
+        console.table(res);
+        startMenu();
+
+    })
+
 }
     
     
