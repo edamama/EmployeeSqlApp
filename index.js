@@ -87,22 +87,123 @@ function viewAllDepartments(){
     
     createConnection.query("SELECT * FROM department",function(err,res){
 
+        if (err) throw err;
         console.table(res);
-        startMenu();
+        init();
 
-    })
+    });
+
+};
+
+function viewAllRoles(){
+
+    connection.query("r.id,r.job,d.name AS department, r.pay, FROM role r JOIN department d ON r.department_id = di.id",(err,res) => {
+
+        if(err) throw err;
+        console.table(res);
+        init();
+
+    });
+
+};
+
+function viewAllEmployees(){
+
+    connection.query(`SELECT e.id,e.fName,e.lName,r.job,d.name AS department, r.pay, CONCAT(m.fName, " ", m.lName) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id`,(err,res) =>{
+
+        if (err) throw err;
+        console.table(res);
+        init();
+
+    } )
 
 }
+            
 
-//function viewAllRoles(){
+function addADepartment(){
 
-    //createConnection.query("SELECT * FROM role", function(err,res){
+    inquirer.prompt([{
 
-        
+        name: "addedDepartment",
+        type:"input",
+        message: "What department are you adding?"
 
-    //}
+    }]).then(answer => {
 
-//}
+        connection.query(`INSERT INTO department (name) VALUES (?)`, [answer.addedDepartment], (err,res) => {
+
+            if(err) throw err;
+            console.log("Your department has been inserted into the database.");
+            init();
+
+        });
+
+
+
+    });
+
+};
     
-    
 
+function addARole(){
+
+    connection.query(`SELECT id,name FROM department`, (err,res) =>{
+
+        if (err) throw err;
+
+        const departmentNames = res.reduce((acc,curr) => {
+
+            acc[curr.name] = curr.id;
+            return acc;
+
+        },{});
+    
+    inquirer.prompt([{
+
+        name:"addedRole",
+        type:"input",
+        message: "What role will you add?"
+
+    },
+
+
+    {
+
+        name:"addedPay",
+        type:"input",
+        message:"How much pay does this new role receive?"
+
+    },
+
+    {
+
+        name:"newRoleDept",
+        type:"list",
+        message: "To which department does this new role belong to?",
+        choices: Object.keys(departmentNames),
+
+    }
+
+]).then(answer => {
+
+    const departmentId = departmentNames[answer.newRoleDept];
+
+        connection.query(`INSERT INTO role (job, pay, department_id) VALUES (?,?,?)`, [answer.addedRole, answer.addedPay, departmentId],
+
+            function (err,res){
+
+                if (err) throw err;
+                console.log("Role has been merged into the database!");
+                init();
+
+            }
+
+        );
+
+})
+
+});
+
+};
+
+function update
