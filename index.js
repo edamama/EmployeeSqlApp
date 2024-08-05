@@ -1,4 +1,23 @@
 const inquirer = require('inquirer');
+const mysql = require("mysql2");
+const cTable = require("console.table");
+
+const connection = mysql.createConnection({
+
+    host:'localhost',
+    port:3001,
+    user: "root",
+    password:"Camry2025!",
+    database:"office_db"
+
+});
+
+connection.connect(err =>{
+
+    if (err) throw err;
+    console.log("Connected to office database.");
+    init();
+})
 
 
 
@@ -74,9 +93,16 @@ function viewAllDepartments(){
     })
 
 }
+
+//function viewAllRoles(){
+
+    //createConnection.query("SELECT * FROM role", function(err,res){
+
+        
+
+    //}
+
+//}
     
     
 
-//run program
-
-init();
