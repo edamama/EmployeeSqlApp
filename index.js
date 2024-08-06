@@ -206,4 +206,98 @@ function addARole(){
 
 };
 
-function update
+function addAnEmployee(){
+
+    connection.query(`SELECT id, job FROM role`, (err,res) =>{
+
+        if (err) throw err;
+
+        const roleNames = res.reduce((acc,curr)=> {
+
+            acc[curr.job] = curr.id;
+            return acc;
+
+        },{});
+
+        connection.query(`SELECT id, CONCAT(fName," ",lName) AS name FROM employee`, (err,res) =>{
+
+            if (err) throw err;
+
+            const managers = {};
+
+            res.forEach((employee) =>{
+
+                const managerName = `${employee.fName} ${employee.lName}`;
+                managers[managerName] = employee.id;
+
+            });
+
+            inquirer.prompt([
+
+                {
+
+                    name:"firstName",
+                    type: "input",
+                    message:"Enter a first name."
+
+                },
+
+                {
+
+                    name:"lastName",
+                    type: "input",
+                    message:"Now enter a last name."
+
+                },
+
+                {
+
+                    name:"roleSelection",
+                    type: "list",
+                    message:"Give this worker a role",
+                    choices: Object.keys(roleNames),
+
+                },
+
+
+                {
+
+                    name:"givenManager",
+                    type: "list",
+                    message:"Who manages this person?",
+                    choices: Object.keys(managers)
+
+                }
+
+            ]).then(answer=>{
+
+                connection.query(`INSERT INTO employee SET ?`,
+
+                    {
+
+                        fName: answer.firstName,
+                        lName: answer.lastName,
+                        role_id: answer.roleSelection,
+                        manager_id: answer.givenManager
+
+                    },
+
+                    function (err,res){
+
+                        if (err) throw err;
+
+                        console.log("Employee is now here!");
+                        init();
+
+                    }
+                );
+
+            });
+
+        });
+
+        });
+
+    };
+
+
