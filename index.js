@@ -1,23 +1,24 @@
 const inquirer = require('inquirer');
-const mysql = require("mysql2");
+
 const cTable = require("console.table");
 
-const connection = mysql.createConnection({
+const express = require('express');
 
-    host:'localhost',
-    port:3001,
-    user: "root",
-    password:"",
-    database:"office_db"
+const { Pool } = require('pg');
 
-});
+const PORT = process.env.PORT || 3001;
 
-connection.connect(err =>{
+const app = express();
 
-    if (err) throw err;
-    console.log("Connected to office database.");
-    init();
-})
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+// Connect to database
+
+
+
+
 
 
 
@@ -25,7 +26,7 @@ connection.connect(err =>{
 
 //initialize app function
 
-const questions = ["What action would you like to perform?",]
+const question = "What action would you like to perform?"
 
 function init() {
 
@@ -33,7 +34,7 @@ function init() {
         .prompt({
             
             type: "list",
-            message: questions[0],
+            message: question,
             name:"menuSelection",
             choices: ["View all departments","View all roles",
                 
@@ -74,7 +75,7 @@ function init() {
 
             } else{
 
-                createConnection.end();
+                pool.end();
 
             }
 
@@ -85,7 +86,7 @@ function init() {
 
 function viewAllDepartments(){
     
-    createConnection.query("SELECT * FROM department",function(err,res){
+    pool.query(`SELECT * FROM department`,function(err,res){
 
         if (err) throw err;
         console.table(res);
@@ -97,7 +98,7 @@ function viewAllDepartments(){
 
 function viewAllRoles(){
 
-    connection.query("r.id,r.job,d.name AS department, r.pay, FROM role r JOIN department d ON r.department_id = di.id",(err,res) => {
+    pool.query("r.id,r.job,d.name AS department, r.pay, FROM role r JOIN department d ON r.department_id = di.id",(err,res) => {
 
         if(err) throw err;
         console.table(res);
@@ -109,7 +110,7 @@ function viewAllRoles(){
 
 function viewAllEmployees(){
 
-    connection.query(`SELECT e.id,e.fName,e.lName,r.job,d.name AS department, r.pay, CONCAT(m.fName, " ", m.lName) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id`,(err,res) =>{
+    pool.query(`SELECT e.id,e.fName,e.lName,r.job,d.name AS department, r.pay, CONCAT(m.fName, " ", m.lName) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id`,(err,res) =>{
 
         if (err) throw err;
         console.table(res);
@@ -130,7 +131,7 @@ function addADepartment(){
 
     }]).then(answer => {
 
-        connection.query(`INSERT INTO department (name) VALUES (?)`, [answer.addedDepartment], (err,res) => {
+        pool.query(`INSERT INTO department (name) VALUES (?)`, [answer.addedDepartment], (err,res) => {
 
             if(err) throw err;
             console.log("Your department has been inserted into the database.");
@@ -147,7 +148,7 @@ function addADepartment(){
 
 function addARole(){
 
-    connection.query(`SELECT id,name FROM department`, (err,res) =>{
+    pool.query(`SELECT id,name FROM department`, (err,res) =>{
 
         if (err) throw err;
 
@@ -188,7 +189,7 @@ function addARole(){
 
     const departmentId = departmentNames[answer.newRoleDept];
 
-        connection.query(`INSERT INTO role (job, pay, department_id) VALUES (?,?,?)`, [answer.addedRole, answer.addedPay, departmentId],
+        pool.query(`INSERT INTO role (job, pay, department_id) VALUES (?,?,?)`, [answer.addedRole, answer.addedPay, departmentId],
 
             function (err,res){
 
@@ -208,7 +209,7 @@ function addARole(){
 
 function addAnEmployee(){
 
-    connection.query(`SELECT id, job FROM role`, (err,res) =>{
+    pool.query(`SELECT id, job FROM role`, (err,res) =>{
 
         if (err) throw err;
 
@@ -219,7 +220,7 @@ function addAnEmployee(){
 
         },{});
 
-        connection.query(`SELECT id, CONCAT(fName," ",lName) AS name FROM employee`, (err,res) =>{
+        pool.query(`SELECT id, CONCAT(fName," ",lName) AS name FROM employee`, (err,res) =>{
 
             if (err) throw err;
 
@@ -271,7 +272,7 @@ function addAnEmployee(){
 
             ]).then(answer=>{
 
-                connection.query(`INSERT INTO employee SET ?`,
+                pool.query(`INSERT INTO employee SET ?`,
 
                     {
 
@@ -301,3 +302,19 @@ function addAnEmployee(){
     };
 
 
+    const pool = new Pool(
+        {
+          // Enter PostgreSQL username
+          user: 'postgres',
+          // Enter PostgreSQL password
+          password: 'Camry2025!',
+          host: 'localhost',
+          database: 'company_db'
+      },
+      console.log('Connected to the company database!'),
+      
+      init()
+      
+      
+      
+      )

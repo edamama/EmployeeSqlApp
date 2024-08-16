@@ -1,10 +1,13 @@
-INSERT INTO department (name)
-VALUES ("MANAGEMENT"),("SALES"),("HR"),("QUALITY CHECK"),("OFFICE");
 
-INSERT INTO role (job, pay, department_id)
-VALUES ("BRANCH MANAGER", 121221, 1),("SALESMAN",4004,1),("ACCOUNTANT",10,2);
+\c company_db
 
-INSERT INTO employee (fName, lName, role_id, manager_id)
-VALUES ("TYLER","PAYNE",1,2), ("NICOLAS", "HANAMAN",2,NULL);
+INSERT INTO department (id,name)
+VALUES (1,"MANAGEMENT"),(2,"SALES"),(3,"HR"),(4,"QUALITY CHECK"),(5,"OFFICE");
+
+INSERT INTO role (id,job, pay, department_id)
+VALUES (1,"BRANCH MANAGER", 121.221, 1),(2,"SALESMAN",400.4,1),(3,"ACCOUNTANT",100.54,2);
+
+INSERT INTO employee (id,fName,lName,role_id,manager_id)
+VALUES (4,"TYLER","PAYNE",1,2);
 
 
